@@ -1,2 +1,2 @@
 # Boruciny
-App for video game boruciny
+App for board game boruciny
