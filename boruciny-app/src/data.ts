@@ -44,20 +44,21 @@ const cards: Record<string, TextCard | ChoiceCard> = {
       { id: "1A", text: "Spróbuj otworzyć bramę", next: "1A" },
       { id: "1B", text: "Przeskocz nad bramą", next: "1B" },
     ],
-    removeToken: true,
+    removeToken: true, // Już było
   },
   "1A": {
     id: "1A",
     type: "text",
     content: "1a.",
     effect: "addMap:2:1:0",
-    removeToken: true,
+    removeToken: true, // Już było
   },
   "1B": {
     id: "1B",
     type: "text",
     content: "1b.",
     effect: "addMap:3:1:1",
+    removeToken: true, // Dodane: Usuń token po tej akcji
   },
   "2": {
     id: "2",
@@ -66,12 +67,14 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "2A", text: "Poproś o otworzenie bramy", next: "3" },
       { id: "2B", text: "Zagadaj do leśniczego", next: "3" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z leśniczym
   },
   "3": {
     id: "3",
     type: "text",
-    content: "Brama się otwiera i kontynuujesz do wnętrza Domu Ciotki."
+    content: "Brama się otwiera i kontynuujesz do wnętrza Domu Ciotki.",
+    // Ta karta jest wynikiem wyboru, więc nie powinna usuwać tokena 2, bo to już robi karta 2
   },
 
   // Dom Ciotki
@@ -82,7 +85,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "4A", text: "Kucasz i sięgasz ręką, by go zawołać", next: "4A" },
       { id: "4B", text: "Siadasz w cieniu i nie odzywasz się", next: "4B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z kotem
   },
   "4A": {
     id: "4A",
@@ -103,7 +107,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "5A", text: "Przejrzyj gazety", next: "5A" },
       { id: "5B", text: "Spójrz na zdjęcia", next: "5B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z komodą
   },
   "5A": {
     id: "5A",
@@ -122,7 +127,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "6A", text: "Spróbuj otworzyć schowek", next: "6A" },
       { id: "6B", text: "Odejdź", next: "6B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z regałem
   },
   "6A": {
     id: "6A",
@@ -141,7 +147,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "18A", text: "Sprawdź herbatę", next: "18A" },
       { id: "18B", text: "Sprawdź słoiki", next: "18B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z kuchnią
   },
   "18A": {
     id: "18A",
@@ -162,7 +169,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "16A", text: "Zapytaj Bogusię o ciotkę", next: "16A" },
       { id: "16B", text: "Zaoferuj kupienie Władkowi szlugów", next: "16B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z Bogusią i Władkiem
   },
   "16A": {
     id: "16A",
@@ -181,7 +189,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "17A", text: "Zamów coś i zagadaj", next: "17A" },
       { id: "17B", text: "Zapytaj o mieszkańców", next: "17B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z barem
   },
   "17A": {
     id: "17A",
@@ -200,7 +209,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "22A", text: "Kup herbatę z melisą", next: "22A" },
       { id: "22B", text: "Zapytaj o Leśniczego", next: "22B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z Alicją
   },
   "22A": {
     id: "22A",
@@ -219,12 +229,14 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "23A", text: "Podejdź i daj rękę do powąchania", next: "23A" },
       { id: "23B", text: "Zawołaj go", next: "23B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z kundlem
   },
   "23A": {
     id: "23A",
     type: "text",
-    content: "Podchodzisz powoli, wyciągasz dłoń. Pies wącha ją długo, jakby rozpoznawał coś znajomego… albo próbował sobie przypomnieć. Nie odchodzi. Przeciwnie — wstaje, znika na moment w zaroślach i wraca z czymś w pysku. To stary, lekko pogięty spinacz. Kładzie go u twoich stóp i siada z powrotem."
+    content: "Podchodzisz powoli, wyciągasz dłoń. Pies wącha ją długo, jakby rozpoznawał coś znajomego… albo próbował sobie przypomnieć. Nie odchodzi. Przeciwnie — wstaje, znika na moment w zaroślach i wraca z czymś w pysku. To stary, lekko pogięty spinacz. Kładzie go u twoich stóp i siada z powrotem.",
+    effect: "addItem:spinacz", // Założenie, że "spinacz" to nazwa przedmiotu
   },
   "23B": {
     id: "23B",
@@ -238,7 +250,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "24A", text: "Siadasz, pijesz herbatę i słuchasz", next: "24A" },
       { id: "24B", text: "Zagadujesz go o Boruciny", next: "24B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z proboszczem
   },
   "24A": {
     id: "24A",
@@ -285,7 +298,8 @@ const cards: Record<string, TextCard | ChoiceCard> = {
     choices: [
       { id: "87A", text: "Pomódl się", next: "87A" },
       { id: "87B", text: "Przyjrzyj się napisom", next: "87B" }
-    ]
+    ],
+    removeToken: true, // Dodane: Usuń token po interakcji z kapliczką
   },
   "87A": {
     id: "87A",
@@ -295,22 +309,23 @@ const cards: Record<string, TextCard | ChoiceCard> = {
   "87B": {
     id: "87B",
     type: "text",
-    content: "Z bliska odczytujesz ledwie widoczne słowa wyryte w kamieniu: „Pamięć trwa, gdy serce czuwa.” Między świeżymi kwiatami zauważasz połyskujący stary, mosiężny klucz. Zabierasz Klucz spod kapliczki."
+    content: "Z bliska odczytujesz ledwie widoczne słowa wyryte w kamieniu: „Pamięć trwa, gdy serce czuwa.” Między świeżymi kwiatami zauważasz połyskujący stary, mosiężny klucz. Zabierasz Klucz spod kapliczki.",
+    effect: "addItem:kluczMosiężny", // Dodane: Dodaj klucz do ekwipunku
   },
   "event1": {
-  id: "event1",
-  type: "text",
-  content: "Cichy trzask gdzieś w oddali. Ktoś jakby uchylił drzwi w Domu Ciotki.",
-  condition: "tokenRemoved:1 & tokenRemoved:2",
-  effect: "addMap:2:1:0",
-  removeToken: false
-},
+    id: "event1",
+    type: "text",
+    content: "Cichy trzask gdzieś w oddali. Ktoś jakby uchylił drzwi w Domu Ciotki.",
+    condition: "tokenRemoved:1 & tokenRemoved:2",
+    effect: "addMap:2:1:0",
+    removeToken: false
+  },
 };
 
 const initialGameState: GameState = {
   activeMaps: [{ id: "1", x: 0, y: 0 }],
   removedTokens: [],
-  discoveredTokens: ["1"],
+  discoveredTokens: ["1", "2"],
   flags: [],
   inventory: [],
   triggeredEvents: []

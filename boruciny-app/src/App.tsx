@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useState, useCallback, useEffect } from 'react';
-import gameData from './data';
+import gameData from './testData';
 import {
   GameState,
   TokenID,
@@ -51,6 +51,10 @@ const effectHandlers: Record<string, EffectHandler> = {
       discoveredTokens,
     };
   },
+  removeItem: (state, id) => ({
+    ...state,
+    inventory: state.inventory.filter(item => item !== id),
+  }),
 };
 
 
@@ -91,24 +95,29 @@ function App() {
   }, []);
   
 
-  // Apply effects
   const applyEffect = useCallback(
     (state: GameState, effect?: string): GameState => {
       if (!effect) return state;
-      
-      const [effectType, ...params] = effect.split(':');
-      const param = params.join(':');
-      const handler = (effectHandlers as any)[effectType];
-      
-      if (!handler) {
-        console.error(`No effect handler for: ${effectType}`);
-        return state;
-      }
-      
-      return handler(state, param);
+  
+      // Obsługa wielu efektów oddzielonych średnikiem
+      const effectList = effect.split(';').map(e => e.trim()).filter(Boolean);
+  
+      return effectList.reduce((updatedState, effectStr) => {
+        const [effectType, ...params] = effectStr.split(':');
+        const param = params.join(':');
+        const handler = effectHandlers[effectType];
+  
+        if (!handler) {
+          console.error(`No effect handler for: ${effectType}`);
+          return updatedState;
+        }
+  
+        return handler(updatedState, param);
+      }, state);
     },
     []
   );
+  
 
   // Get triggered event
   const getTriggeredEvent = useCallback(
@@ -218,9 +227,15 @@ function App() {
   
     const card = gameData.cards[token.cardId];
     if (!card) return;
-  
+
+    if (!checkCondition(gameState, card.condition)) {
+      setMessage('Nie spełniasz warunków, by odsłonić tę kartę.');
+      return;
+    }
+
     setSelectedToken(tokenId);
     setCurrentCard(card);
+
   
     if (card.type === 'choice') {
       setMessage('Wybierz opcję');
