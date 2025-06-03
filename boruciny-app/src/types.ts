@@ -1,17 +1,14 @@
-
 export type TokenID = string;
 export type CardID = string;  
 export type MapID = string;
 export type ItemID = string;
 export type FlagID = string;
 
-
 export interface Token {
   id: TokenID;
   cardId: CardID;
   mapId: MapID;
 }
-
 
 export type Card = TextCard | ChoiceCard;
 
@@ -23,13 +20,11 @@ interface CardBase {
   effect?: string;    
 }
 
-
 export interface TextCard extends CardBase {
   type: 'text';
   content: string;
   next?: CardID;
 }
-
 
 export interface ChoiceCard extends CardBase {
   type: 'choice';
@@ -38,19 +33,17 @@ export interface ChoiceCard extends CardBase {
 }
 
 export interface Choice {
-  id: string;       // Usually "A", "B", "C"
-  text: string;     // What player sees
-  next: CardID;     // Which card follows
-  effect?: string;  // e.g. "addItem:klucz"
+  id: string;
+  text: string;
+  next: CardID;
+  effect?: string;
 }
-
 
 export interface Map {
   id: MapID;
   name: string;
   tokens: TokenID[];
 }
-
 
 export interface ActiveMap {
   id: MapID;
@@ -61,13 +54,16 @@ export interface ActiveMap {
 export interface GameState {
   activeMaps: ActiveMap[];
   removedTokens: TokenID[];
+  discoveredTokens: TokenID[];
   flags: FlagID[];
   inventory: ItemID[];
+  triggeredEvents: CardID[];
 }
 
 export interface GameData {
   tokens: Record<TokenID, Token>;
   cards: Record<CardID, Card>;
   maps: Record<MapID, Map>;
+  events: CardID[];
   initialGameState: GameState;
 }
