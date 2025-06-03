@@ -2,6 +2,10 @@
 
 Ten plik opisuje, jak tworzyć dane do gry. Gra działa w oparciu o plik `data.ts` lub `testData.ts` zawierający strukturę `GameData`.
 
+- Tymczasowo,dla demonstracji plik używa  `testData.ts` `zamiast data.ts`
+- Żeby to zmienić, należy  w `App.tsx` w linijce 3 zmienić `import gameData from './testData';` na  `import gameData from './Data';`
+
+
 ---
 
 ## 📦 Struktura pliku `GameData`
@@ -123,6 +127,10 @@ effect: "setFlag:flagaA; addItem:klucz; addMap:2:1:0"
 
 ---
 
+- z racji występowania drobnego buga `addMap:id:x:y;` należy dodawać na końcu stringa `effect` i należy zakonczyć go średnikiem- jeżeli w danym efekcie dodajemy mapę, efekt powiniene się kończyć w postaci `...;addMap:id:x:y;`
+
+---
+
 ## ✅ Warunki (`condition`)
 
 Warunki mówią, **czy karta się pokazuje**.
@@ -182,13 +190,14 @@ const initialGameState: GameState = {
 
 ---
 
-## 🛠️ Tips & Best Practices
+## 🛠️ Tips 
 
 - **Żeton bez wpisu w `tokens` nie działa.**
 - **Każda karta musi mieć unikalny `id`.**
 - **Nie zapomnij dodać `removeToken: true`, jeśli żeton ma zniknąć po użyciu.**
 - Używaj `choice` kart, by dawać graczowi wybory.
 - Korzystaj z `events`, by tworzyć reakcje globalne (np. odblokowanie nowej mapy).
+- Przykładowe dane można znaleźć w pliku `testData.ts`
 
 ---
 
@@ -203,3 +212,4 @@ const initialGameState: GameState = {
   effect: "addMap:5:2:0; removeItem:kluczPiwnica",
   removeToken: true
 }
+```
