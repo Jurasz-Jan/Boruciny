@@ -22,7 +22,7 @@ interface GameData {
 
 ---
 
-## 🧹 Jak działa gra?
+## 🧹 Jak działa aplikacja?
 
 Gracz:
 1. Wchodzi na mapę i klika **żetony**.
