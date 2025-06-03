@@ -213,3 +213,7 @@ const initialGameState: GameState = {
   removeToken: true
 }
 ```
+
+
+## Notka
+Obecnie kliknięte karty wyświetlają różne wiadomości. W założeniu te wiadomości powinny być na fizycznych kartach, a wiadomość w aplikacji powinna po prostu brzmieć "Dobiesz kartę 3A", "Otrzymujesz klucz" itd.
