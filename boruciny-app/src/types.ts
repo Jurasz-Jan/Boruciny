@@ -17,6 +17,7 @@ interface CardBase {
   title?: string;
   removeToken?: boolean;
   condition?: string; 
+  onConditionFail?: CardID;
   effect?: string;    
 }
 
@@ -37,6 +38,8 @@ export interface Choice {
   text: string;
   next: CardID;
   effect?: string;
+  condition?: string; 
+  onConditionFail?: CardID;
 }
 
 export interface Map {

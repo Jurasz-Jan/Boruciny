@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useState, useCallback, useEffect } from 'react';
-import gameData from './testData';
+import gameData from './data';
 import {
   GameState,
   TokenID,
@@ -16,10 +16,24 @@ import {
 type ConditionHandler = (state: GameState, id: string) => boolean;
 type EffectHandler = (state: GameState, param: string) => GameState;
 
-const conditionHandlers: Record<string, ConditionHandler> = {
-  tokenRemoved: (state, id) => state.removedTokens.includes(id),
-  hasItem: (state, id) => state.inventory.includes(id),
-  hasFlag: (state, id) => state.flags.includes(id),
+const conditionHandlers: Record<string, (state: GameState, param: string) => boolean> = {
+  // Obsługa warunku 'hasFlag:nazwaFlagi'
+  hasFlag: (state, flagName) => {
+    return state.flags.includes(flagName);
+  },
+
+  // Obsługa warunku 'hasItem:nazwaItemu' lub 'hasItem:nazwaItemu>=liczba'
+  hasItem: (state, param) => {
+    const parts = param.split('>=');
+    const itemId = parts[0].trim();
+    const requiredCount = parts.length > 1 ? parseInt(parts[1].trim()) : 1; // Domyślnie 1
+
+    const actualCount = state.inventory.filter(item => item === itemId).length;
+    return actualCount >= requiredCount;
+  },
+
+  // Możesz dodać inne handlery warunków, np.
+  // hasStat: (state, param) => { /* logika dla statystyk */ return true; },
 };
 
 const effectHandlers: Record<string, EffectHandler> = {
@@ -30,6 +44,10 @@ const effectHandlers: Record<string, EffectHandler> = {
   addItem: (state, id) => ({
     ...state,
     inventory: [...new Set([...state.inventory, id])],
+  }),
+  addToken: (state, id) => ({
+    ...state,
+    discoveredTokens: [...new Set([...state.discoveredTokens, id])], // Dodaje token do odkrytych
   }),
   addMap: (state, param) => {
     const [mapId, xStr, yStr] = param.split(':');
@@ -77,22 +95,33 @@ function App() {
   const checkCondition = useCallback((state: GameState, condition?: string): boolean => {
     if (!condition) return true;
   
-    return condition.split('&').every(expr => {
+    // Rozdziel warunki za pomocą '&&'
+    return condition.split('&&').every(expr => {
       const trimmed = expr.trim();
-      const negate = trimmed.startsWith('not ');
-      const key = negate ? trimmed.slice(4) : trimmed;
+      let negate = false;
+      let key = trimmed;
+  
+      // Sprawdzanie negacji '!' na początku lub 'not '
+      if (trimmed.startsWith('!')) {
+        negate = true;
+        key = trimmed.slice(1).trim();
+      } else if (trimmed.startsWith('not ')) {
+        negate = true;
+        key = trimmed.slice(4).trim();
+      }
+  
       const [handlerName, param] = key.split(':');
       const handler = conditionHandlers[handlerName];
   
       if (!handler) {
-        console.error(`No condition handler for: ${handlerName}`);
+        console.error(`Brak handlera warunku dla: ${handlerName}. Warunek: ${condition}`);
         return false;
       }
   
       const result = handler(state, param);
       return negate ? !result : result;
     });
-  }, []);
+  }, []); // Zależność conditionHandlers, jeśli nie jest to globalny obiekt
   
 
   const applyEffect = useCallback(
@@ -119,23 +148,23 @@ function App() {
   );
   
 
-  // Get triggered event
-  const getTriggeredEvent = useCallback(
-    (state: GameState): CardID | null => {
-      for (const eventId of gameData.events) {
-        if (state.triggeredEvents.includes(eventId)) continue;
-        
-        const card = gameData.cards[eventId];
-        if (!card) continue;
-        
-        if (checkCondition(state, card.condition)) {
-          return card.id;
-        }
-      }
-      return null;
-    },
-    [checkCondition]
-  );
+  // In getTriggeredEvent
+    const getTriggeredEvent = useCallback(
+        (state: GameState): CardID | null => {
+          for (const eventId of gameData.events) { // <--- eventId is a string, correctly iterates through string IDs
+            if (state.triggeredEvents.includes(eventId)) continue;
+            
+            const card = gameData.cards[eventId]; // <--- Correctly uses eventId as a string key
+            if (!card) continue;
+            
+            if (checkCondition(state, card.condition)) {
+              return card.id;
+            }
+          }
+          return null;
+        },
+        [checkCondition]
+      );
 
   // Handle card actions
   const handleCardAction = useCallback(
@@ -148,12 +177,27 @@ function App() {
       }
       
       // Check card condition
-      if (!checkCondition(newState, card.condition)) {
-        setMessage('Warunki nie zostały spełnione');
-        setCurrentCard(null);
+      if (choice && choice.condition && !checkCondition(newState, choice.condition)) {
+        // Jeśli warunek wyboru niespełniony i ma zdefiniowane onConditionFail
+        if (choice.onConditionFail) {
+            const failCard = gameData.cards[choice.onConditionFail];
+            if (failCard) {
+                setGameState(newState); // Zastosuj efekty, jeśli jakieś były przed warunkiem wyboru
+                setCurrentCard(failCard);
+                setMessage(''); // Wyczyść wiadomość
+                setSelectedToken(null);
+                return; // Zakończ funkcję, nie przechodź do 'next'
+            } else {
+                console.warn(`Karta 'onConditionFail' dla wyboru z ID '${choice.onConditionFail}' nie została znaleziona.`);
+            }
+        }
+        // Domyślne zachowanie, jeśli onConditionFail nie jest zdefiniowane dla wyboru
+        setMessage('Warunki dla tego wyboru nie zostały spełnione.');
+        // Pozostań na obecnej karcie lub wróć do mapy, w zależności od preferencji
+        setCurrentCard(null); // Opcjonalnie: wróć do mapy
         setSelectedToken(null);
-        return;
-      }
+        return; // Zakończ funkcję
+    }
       
       // Apply card effect
       if (card.effect) {
@@ -169,31 +213,32 @@ function App() {
       }
       
       // Check for triggered events
-      const eventId = getTriggeredEvent(newState);
-      if (eventId) {
-        const eventCard = gameData.cards[eventId];
-        if (eventCard) {
-          newState = {
-            ...newState,
-            triggeredEvents: [...newState.triggeredEvents, eventId],
-          };
-          
-          // FIXED: Safe map name extraction
-          let mapName = "nieznany obszar";
-          if (eventCard.effect) {
-            const effectParts = eventCard.effect.split(':');
-            if (effectParts.length >= 2) {
-              const mapId = effectParts[1];
-              mapName = gameData.maps[mapId]?.name || mapName;
-            }
-          }
-          
-          setGameState(newState);
-          setCurrentCard(eventCard);
-          setMessage(`Odkryto nowy obszar: ${mapName}`);
-          return;
-        }
-      }
+      // In handleCardAction
+  const eventId = getTriggeredEvent(newState);
+  if (eventId) {
+    const eventCard = gameData.cards[eventId];
+    if (eventCard) {
+      newState = {
+        ...newState,
+        triggeredEvents: [...newState.triggeredEvents, eventId],
+      };
+      
+      // FIXED: Safe map name extraction (You already have a fix here, but let's re-examine the logic)
+      let mapName = "nieznany obszar";
+      if (eventCard.effect) {
+        const effectParts = eventCard.effect.split(':');
+        if (effectParts.length >= 2) {
+          const mapId = effectParts[1]; // <--- mapId is a string, which is correct
+          mapName = gameData.maps[mapId]?.name || mapName; // <--- Correctly uses mapId as a string key
+        }
+      }
+      
+      setGameState(newState);
+      setCurrentCard(eventCard); // <--- Sets the current card to the event card
+      setMessage(`Odkryto nowy obszar: ${mapName}`);
+      return;
+    }
+  }
       
       // Move to next card
       const nextId = choice?.next || (card as TextCard).next;
@@ -229,9 +274,25 @@ function App() {
     if (!card) return;
 
     if (!checkCondition(gameState, card.condition)) {
-      setMessage('Nie spełniasz warunków, by odsłonić tę kartę.');
-      return;
-    }
+      // Jeśli warunek niespełniony i karta ma zdefiniowane onConditionFail
+      if (card.onConditionFail) {
+          const failCard = gameData.cards[card.onConditionFail];
+          if (failCard) {
+              setCurrentCard(failCard);
+              setMessage(''); // Wyczyść wiadomość, nowa karta to załatwi
+          } else {
+              console.warn(`Karta 'onConditionFail' z ID '${card.onConditionFail}' nie została znaleziona.`);
+              setMessage('Nie spełniasz warunków, by odsłonić tę kartę.');
+              setCurrentCard(null); // Wróć do mapy, jeśli karta przekierowania jest błędna
+          }
+      } else {
+          // Domyślne zachowanie, jeśli onConditionFail nie jest zdefiniowane
+          setMessage('Nie spełniasz warunków, by odsłonić tę kartę.');
+          setCurrentCard(null); // Wróć do mapy
+      }
+      setSelectedToken(null); // Upewnij się, że nie ma wybranego żetonu
+      return; // Zakończ funkcję
+  }
 
     setSelectedToken(tokenId);
     setCurrentCard(card);

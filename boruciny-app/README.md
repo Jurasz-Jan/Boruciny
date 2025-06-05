@@ -1,8 +1,9 @@
 # How to run this
 
 1. Install node.js
-2. run `npm i`
-3. run `npm start`
+2.`cd boruciny-app`
+3. run `npm i`
+4. run `npm start`
 
 
 ### `npm start`
