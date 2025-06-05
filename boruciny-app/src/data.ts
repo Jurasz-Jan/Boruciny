@@ -25,10 +25,8 @@ const tokens: Record<string, Token> = {
   "22": { id: "22", cardId: "22", mapId: "6" },
   "23": { id: "23", cardId: "23", mapId: "3" },
   "24": { id: "24", cardId: "24", mapId: "3" },
-  "27": { id: "27", cardId: "27", mapId: "3" },
-  "87": { id: "87", cardId: "87", mapId: "3" },
-  "87B": { id: "87B", cardId: "87B", mapId: "3" },
-  // "100": { id: "100", cardId: "100", mapId: "4" },
+  "27": { id: "27", cardId: "27", mapId: "6" },
+  "87": { id: "87", cardId: "87", mapId: "7" },
   "101": { id: "101", cardId: "101", mapId: "4" },
   "102": { id: "102", cardId: "102", mapId: "4" },
 };
@@ -58,7 +56,7 @@ const maps: Record<string, Map> = {
   "5": {
     id: "5",
     name: "Plac główny, kiosk Pani Bogusi",
-    tokens: ["16"]
+    tokens: ["16", "27"]
   },
   "6": {
     id: "6",
@@ -501,9 +499,7 @@ const cards: Record<string, Card> = {
     removeToken: true
   } as TextCard,
 
-  // You had two cards for "27", one with and one without `proboszczMartwy`.
-  // I'll assume only one "27" token is active at a time, and the condition on the card itself
-  // determines which version to show.
+  //Dopracować proboszcza
   "27": {
     id: "27",
     type: "choice",
@@ -512,10 +508,6 @@ const cards: Record<string, Card> = {
       { id: "27A_choice", text: "Postaw im 'Leśny Dzban' i spróbuj wyciągnąć informacje.", next: "27A", condition: "hasItem:LeśnyDzban" },
       { id: "27B_choice", text: "Obejdź ławeczkę szerokim łukiem", next: "" }
     ],
-    // The condition for ProboszczMartwy should be applied to the token's activation logic,
-    // or you could have two separate tokens (e.g., "27_alive" and "27_dead")
-    // and activate/deactivate them based on the flag.
-    // For now, this card will appear regardless, but if you select it, the "Proboszcz za dużo wiedział" text will only appear if the flag is set.
     removeToken: true
   } as ChoiceCard,
 
