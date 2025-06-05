@@ -14,60 +14,22 @@ import {
 const tokens: Record<string, Token> = {
   "1": { id: "1", cardId: "1", mapId: "1" },
   "2": { id: "2", cardId: "2", mapId: "1" },
-  "3": { id: "3", cardId: "3", mapId: "1" },
-
-  // W Domu Ciotki
   "4": { id: "4", cardId: "4", mapId: "2" },
-  "4A": { id: "4A", cardId: "4A", mapId: "2" },
-  "4B": { id: "4B", cardId: "4B", mapId: "2" },
   "5": { id: "5", cardId: "5", mapId: "2" },
-  "5A": { id: "5A", cardId: "5A", mapId: "2" },
-  "5B": { id: "5B", cardId: "5B", mapId: "2" },
   "6": { id: "6", cardId: "6", mapId: "2" },
-  "6A": { id: "6A", cardId: "6A", mapId: "2" },
   "7": { id: "7", cardId: "7", mapId: "2" },
   "8": { id: "8", cardId: "8", mapId: "2" },
   "9": { id: "9", cardId: "9", mapId: "2" },
-  "9A": { id: "9A", cardId: "9A", mapId: "2" },
-  "9A2": { id: "9A2", cardId: "9A2", mapId: "2" },
   "18": { id: "18", cardId: "18", mapId: "2" },
-  "18A": { id: "18A", cardId: "18A", mapId: "2" },
-  "18B": { id: "18B", cardId: "18B", mapId: "2" },
-
-  // Boruciny
   "16": { id: "16", cardId: "16", mapId: "3" },
-  "16A": { id: "16A", cardId: "16A", mapId: "3" },
-  "16B": { id: "16B", cardId: "16B", mapId: "3" },
-  "16C": { id: "16C", cardId: "16C", mapId: "3" },
   "17": { id: "17", cardId: "17", mapId: "3" },
-  "17A": { id: "17A", cardId: "17A", mapId: "3" },
-  "17B": { id: "17B", cardId: "17B", mapId: "3" },
   "22": { id: "22", cardId: "22", mapId: "3" },
-  "22A": { id: "22A", cardId: "22A", mapId: "3" },
-  "22A2": { id: "22A2", cardId: "22A2", mapId: "3" },
-  "22B": { id: "22B", cardId: "22B", mapId: "3" },
   "23": { id: "23", cardId: "23", mapId: "3" },
-  "23A": { id: "23A", cardId: "23A", mapId: "3" },
-  "23B": { id: "23B", cardId: "23B", mapId: "3" },
   "24": { id: "24", cardId: "24", mapId: "3" },
-  "24A": { id: "24A", cardId: "24A", mapId: "3" },
-  "24B": { id: "24B", cardId: "24B", mapId: "3" },
-  "24_v2": { id: "24_v2", cardId: "24_v2", mapId: "3" },
-  "24A_v2": { id: "24A_v2", cardId: "24A_v2", mapId: "3" },
-  "25A": { id: "25A", cardId: "25A", mapId: "3" },
-  "25B": { id: "25B", cardId: "25B", mapId: "3" },
-  "24B_v2": { id: "24B_v2", cardId: "24B_v2", mapId: "3" },
-  "26A": { id: "26A", cardId: "26A", mapId: "3" },
-  "26B": { id: "26B", cardId: "26B", mapId: "3" },
   "27": { id: "27", cardId: "27", mapId: "3" },
-  "27_proboszczMartwy": { id: "27_proboszczMartwy", cardId: "27_proboszczMartwy", mapId: "3" },
-  "27A": { id: "27A", cardId: "27A", mapId: "3" },
   "87": { id: "87", cardId: "87", mapId: "3" },
   "87B": { id: "87B", cardId: "87B", mapId: "3" },
-  "87B_key": { id: "87B_key", cardId: "87B_key", mapId: "3" },
-
-  // Poranek (eventy)
-  "100": { id: "100", cardId: "100", mapId: "4" },
+  // "100": { id: "100", cardId: "100", mapId: "4" },
   "101": { id: "101", cardId: "101", mapId: "4" },
   "102": { id: "102", cardId: "102", mapId: "4" },
 };
@@ -77,7 +39,7 @@ const maps: Record<string, Map> = {
   "1": {
     id: "1",
     name: "Brama w lesie",
-    tokens: ["1", "2", "3"]
+    tokens: ["1", "2"]
   },
   "2": {
     id: "2",
@@ -116,7 +78,12 @@ const maps: Record<string, Map> = {
   },
   "9": {
     id: "9",
-    name: "Las za plebanią",
+    name: "Ratusz",
+    tokens: []
+  },
+  "10": {
+    id: "10",
+    name: "Samochód Ciotki",
     tokens: []
   },
 };
@@ -129,8 +96,8 @@ const cards: Record<string, Card> = {
     type: "choice", // This is now correctly type-checked as the literal "choice"
     question: "Brama jest zamknięta, za bramą kręci się jakaś osoba.",
     choices: [
-      { id: "1A_choice", text: "Spróbuj otworzyć bramę", next: "1A" },
-      { id: "1B_choice", text: "Przeskocz nad bramą", next: "3" }
+      { id: "1A", text: "Spróbuj otworzyć bramę", next: "1A_try_open" },
+      { id: "1B_choice", text: "Przeskocz nad bramą", next: "1B" }
     ],
     removeToken: false,
   } as ChoiceCard, 
@@ -138,37 +105,62 @@ const cards: Record<string, Card> = {
   "1A": {
     id: "1A",
     type: "text",
-    condition: "hasFlag:knowWhereKey",
-    content: "Dobierz kartę 1A",
-    effect: "addMap:2:0:0",
+    condition: "hasFlag:bramaOtwarta",
+    content: "Brama otwarta",
+    effect: "addMap:2:0:0; removeToken:1;",
+    removeToken: true, // Usuwamy token, bo brama otwarta
+  } as TextCard,
+
+  "1A_try_open": { // Zmieniono ID, aby było jasne co robi ta karta
+    id: "1A_try_open",
+    type: "text", // Może być tekstową, jeśli tylko sprawdza warunek i przekierowuje
+    content: "Próbujesz otworzyć bramę...", // Ten tekst może się nie pojawić, jeśli warunek od razu przekieruje
+    condition: "hasFlag:bramaOtwarta", // Nadal sprawdzamy flagę dla sukcesu
+    onConditionFail: "1C", // Przekierowanie, jeśli flaga NIE jest ustawiona
+    effect: "", // Brak efektu na tej karcie, bo to tylko "przejście"
     removeToken: false,
+    next: "1A" // Jeśli warunek spełniony, przejdź do karty sukcesu
   } as TextCard,
 
   "1B": {
-    id: "1A",
+    id: "1B",
     type: "text",
-    content: "Dobierz kartę 1B",
-    effect: "addMap:2:0:0",
+    content: "Wyjebałeś się na ryj debilu.",
     removeToken: false,
   } as TextCard,
+
+  "1C": {
+    id: "1C",
+    type: "text",
+    content: "Nie masz klucza, nie otworzysz bramy.",
+    removeToken: false,
+  } as TextCard,
+
+  
 
   "2": {
     id: "2",
     type: "choice", 
-    question: "Widzisz twarz starszego mężczyzny w flanelowej koszuli. To miejscowy leśniczy, Władek. Patrzy ci się prosto w oczy — niegroźnie, ale z dystansem. „Zgubiłeś się, kierowniku?” — mówi głosem, który brzmi bardziej ciekawie niż podejrzliwie.",
+    question: "Władek Leśniczy",
     choices: [
-      { id: "2A", text: "Poproś o otworzenie bramy", next: "3", effect: "setFlag:bramaOtwarta" },
-      { id: "2B", text: "Zagadaj do leśniczego", next: "3", effect: "setFlag:zaufanieWladka; setFlag:bramaOtwarta" }
+      { id: "2A", text: "Poproś o otworzenie bramy", next: "2A", effect: "setFlag:bramaOtwarta" },
+      { id: "2B", text: "Zagadaj do leśniczego", next: "2B", effect: "setFlag:zaufanieWladka; setFlag:bramaOtwarta" }
     ],
-    removeToken: false,
+    removeToken: true,
     // condition: "!hasItem:klucz"
   } as ChoiceCard, // Type assertion for clarity
 
-  "3": {
-    id: "3",
+  "2A": {
+    id: "2A",
     type: "text",
-    content: "Brama się otwiera i kontynuujesz do wnętrza Domu Ciotki.",
-    effect: "addMap:2:0:0",
+    content: "LESINCZY A.",
+    removeToken: false,
+  } as TextCard,
+
+  "2B": {
+    id: "2B",
+    type: "text",
+    content: "LESNICZY B",
     removeToken: false,
   } as TextCard,
 
@@ -249,7 +241,7 @@ const cards: Record<string, Card> = {
     content: "Za drzwiami skrytki znajduje się pudełko. Jest ono wyposażone w sześcioliterowy zamek. Otworzy się tylko, jak wpiszesz poprawne hasło. Pomyśl…",
     condition: "hasItem:klucz",
     effect: "setFlag:skrytkaOtwarta",
-    removeToken: true
+    removeToken: false
   } as TextCard,
 
   "8": {
@@ -269,7 +261,7 @@ const cards: Record<string, Card> = {
       { id: "9A_choice", text: "Spróbuj uruchomić auto", next: "9A" },
       { id: "9B_choice", text: "Odejdź", next: "" } // Change null to empty string or a designated 'end' card ID
     ],
-    removeToken: true
+    removeToken: false
   } as ChoiceCard,
 
   "9A": {
@@ -620,7 +612,7 @@ const cards: Record<string, Card> = {
 const initialGameState: GameState = {
   activeMaps: [{ id: "1", x: 0, y: 0 }],
   removedTokens: [],
-  discoveredTokens: ["1"],
+  discoveredTokens: ["1", "2", "3"],
   flags: [],
   inventory: [],
   triggeredEvents: []

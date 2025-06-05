@@ -13,7 +13,7 @@ import {
 } from './types';
 
 // Condition handlers
-type ConditionHandler = (state: GameState, id: string) => boolean;
+
 type EffectHandler = (state: GameState, param: string) => GameState;
 
 const conditionHandlers: Record<string, (state: GameState, param: string) => boolean> = {
@@ -31,6 +31,7 @@ const conditionHandlers: Record<string, (state: GameState, param: string) => boo
     const actualCount = state.inventory.filter(item => item === itemId).length;
     return actualCount >= requiredCount;
   },
+  
 
   // Możesz dodać inne handlery warunków, np.
   // hasStat: (state, param) => { /* logika dla statystyk */ return true; },
@@ -73,6 +74,13 @@ const effectHandlers: Record<string, EffectHandler> = {
     ...state,
     inventory: state.inventory.filter(item => item !== id),
   }),
+
+  removeToken: (state, tokenIdToRemove) => ({
+    ...state,
+    removedTokens: [...state.removedTokens, tokenIdToRemove], // Dodaje do listy usuniętych
+    discoveredTokens: state.discoveredTokens.filter(id => id !== tokenIdToRemove), // Usuwa z listy odkrytych (widocznych)
+  }),
+  // --- KONIEC NOWEGO HANDLERA ---
 };
 
 
@@ -167,93 +175,136 @@ function App() {
       );
 
   // Handle card actions
-  const handleCardAction = useCallback(
-    (card: TextCard | ChoiceCard, choice?: Choice) => {
-      let newState = gameState;
-      
-      // Apply choice effect
-      if (choice?.effect) {
+
+const handleCardAction = useCallback(
+  (card: TextCard | ChoiceCard, choice?: Choice) => {
+    let newState = gameState; // Zawsze zaczynamy od aktualnego stanu
+
+    // 1. Sprawdź warunek na poziomie WYBORU (jeśli istnieje)
+    // To jest pierwszy i najważniejszy krok, jeśli jest to karta wyboru.
+    if (choice) {
+      if (choice.condition && !checkCondition(newState, choice.condition)) {
+        // Jeśli warunek wyboru NIE jest spełniony
+        if (choice.onConditionFail) {
+          const failCard = gameData.cards[choice.onConditionFail];
+          if (failCard) {
+            setCurrentCard(failCard);
+            setMessage('');
+            setSelectedToken(null);
+          } else {
+            console.warn(`Karta 'onConditionFail' dla wyboru z ID '${choice.onConditionFail}' nie została znaleziona.`);
+            setMessage('Warunki dla tego wyboru nie zostały spełnione.');
+            setCurrentCard(null); // Wróć do mapy, jeśli karta przekierowania jest błędna
+            setSelectedToken(null);
+          }
+        } else {
+          // Domyślne zachowanie, jeśli onConditionFail nie jest zdefiniowane dla wyboru
+          setMessage('Warunki dla tego wyboru nie zostały spełnione.');
+          setCurrentCard(null); // Wraca do mapy
+          setSelectedToken(null);
+        }
+        return; // Zakończ funkcję, ponieważ warunek nie jest spełniony
+      }
+
+      // 2. Jeśli warunek wyboru JEST spełniony (lub go nie ma), zastosuj efekt wyboru
+      if (choice.effect) {
         newState = applyEffect(newState, choice.effect);
       }
-      
-      // Check card condition
-      if (choice && choice.condition && !checkCondition(newState, choice.condition)) {
-        // Jeśli warunek wyboru niespełniony i ma zdefiniowane onConditionFail
-        if (choice.onConditionFail) {
-            const failCard = gameData.cards[choice.onConditionFail];
+    }
+
+    // 3. Sprawdź warunek na poziomie KARTY (jeśli istnieje).
+    // UWAGA: Ten warunek powinien być już sprawdzony w `handleTokenClick`
+    // zanim karta zostanie w ogóle wyświetlona. Jeśli jednak jest wywoływany w innych
+    // scenariuszach (np. bezpośrednio z efektu innej karty), ta logika jest tu potrzebna.
+    // Jeśli nie, możesz ten blok usunąć, aby uniknąć podwójnego sprawdzania.
+    // Biorąc pod uwagę Twój poprzedni kod, zakładam, że chcesz, aby on tu był jako "ostatnia deska ratunku".
+    if (card.condition && !checkCondition(newState, card.condition)) {
+        // Jeśli warunek karty NIE jest spełniony
+        if (card.onConditionFail) {
+            const failCard = gameData.cards[card.onConditionFail];
             if (failCard) {
-                setGameState(newState); // Zastosuj efekty, jeśli jakieś były przed warunkiem wyboru
                 setCurrentCard(failCard);
-                setMessage(''); // Wyczyść wiadomość
+                setMessage('');
                 setSelectedToken(null);
-                return; // Zakończ funkcję, nie przechodź do 'next'
             } else {
-                console.warn(`Karta 'onConditionFail' dla wyboru z ID '${choice.onConditionFail}' nie została znaleziona.`);
+                console.warn(`Karta 'onConditionFail' z ID '${card.onConditionFail}' nie została znaleziona.`);
+                setMessage('Warunki dla tej karty nie zostały spełnione.');
+                setCurrentCard(null); // Wróć do mapy
+                setSelectedToken(null);
             }
+        } else {
+            setMessage('Warunki dla tej karty nie zostały spełnione.');
+            setCurrentCard(null); // Wróć do mapy
+            setSelectedToken(null);
         }
-        // Domyślne zachowanie, jeśli onConditionFail nie jest zdefiniowane dla wyboru
-        setMessage('Warunki dla tego wyboru nie zostały spełnione.');
-        // Pozostań na obecnej karcie lub wróć do mapy, w zależności od preferencji
-        setCurrentCard(null); // Opcjonalnie: wróć do mapy
-        setSelectedToken(null);
         return; // Zakończ funkcję
     }
-      
-      // Apply card effect
-      if (card.effect) {
-        newState = applyEffect(newState, card.effect);
-      }
-      
-      // Remove token if needed
-      if (card.removeToken !== false && selectedToken) {
+
+
+    // 4. Zastosuj efekt KARTY (po sprawdzeniu wszystkich warunków i zastosowaniu efektów wyboru)
+    if (card.effect) {
+      newState = applyEffect(newState, card.effect);
+    }
+
+    // 5. Usuń token, jeśli potrzebne
+    if (card.removeToken !== false && selectedToken) {
+      newState = {
+        ...newState,
+        removedTokens: [...newState.removedTokens, selectedToken],
+        // Dodaj to, aby token zniknął z widoku mapy
+        discoveredTokens: newState.discoveredTokens.filter(id => id !== selectedToken)
+      };
+    }
+
+    // 6. Sprawdź, czy uruchomiło się jakieś globalne wydarzenie
+    const eventId = getTriggeredEvent(newState);
+    if (eventId) {
+      const eventCard = gameData.cards[eventId];
+      if (eventCard) {
         newState = {
           ...newState,
-          removedTokens: [...newState.removedTokens, selectedToken],
+          triggeredEvents: [...newState.triggeredEvents, eventId],
         };
-      }
-      
-      // Check for triggered events
-      // In handleCardAction
-  const eventId = getTriggeredEvent(newState);
-  if (eventId) {
-    const eventCard = gameData.cards[eventId];
-    if (eventCard) {
-      newState = {
-        ...newState,
-        triggeredEvents: [...newState.triggeredEvents, eventId],
-      };
-      
-      // FIXED: Safe map name extraction (You already have a fix here, but let's re-examine the logic)
-      let mapName = "nieznany obszar";
-      if (eventCard.effect) {
-        const effectParts = eventCard.effect.split(':');
-        if (effectParts.length >= 2) {
-          const mapId = effectParts[1]; // <--- mapId is a string, which is correct
-          mapName = gameData.maps[mapId]?.name || mapName; // <--- Correctly uses mapId as a string key
-        }
-      }
-      
-      setGameState(newState);
-      setCurrentCard(eventCard); // <--- Sets the current card to the event card
-      setMessage(`Odkryto nowy obszar: ${mapName}`);
-      return;
-    }
-  }
-      
-      // Move to next card
-      const nextId = choice?.next || (card as TextCard).next;
-      if (nextId && gameData.cards[nextId]) {
+
+        // Zastosuj efekty karty wydarzenia NATYCHMIAST
+        if (eventCard.effect) {
+          newState = applyEffect(newState, eventCard.effect);
+        }
+
+        let mapName = "nieznany obszar";
+        if (eventCard.effect) {
+          const effectParts = eventCard.effect.split(';');
+          const addMapEffect = effectParts.find(e => e.trim().startsWith('addMap:'));
+          if (addMapEffect) {
+            const mapId = addMapEffect.split(':')[1];
+            mapName = gameData.maps[mapId]?.name || mapName;
+          }
+        }
+
         setGameState(newState);
-        setCurrentCard(gameData.cards[nextId]);
-      } else {
-        setGameState(newState);
-        setMessage('Wybierz kolejny żeton');
-        setCurrentCard(null);
-        setSelectedToken(null);
+        setCurrentCard(eventCard);
+        setMessage(`Odkryto nowy obszar: ${mapName}`);
+        setSelectedToken(null); // Resetuj wybrany token po wyświetleniu wydarzenia
+        return;
       }
-    },
-    [gameState, selectedToken, applyEffect, checkCondition, getTriggeredEvent]
-  );
+    }
+
+    // 7. Przejdź do następnej karty
+    const nextId = choice?.next || (card as TextCard).next;
+    if (nextId && gameData.cards[nextId]) {
+      setGameState(newState);
+      setCurrentCard(gameData.cards[nextId]);
+      setMessage('');
+      setSelectedToken(null);
+    } else {
+      setGameState(newState);
+      setMessage('Wybierz kolejny żeton');
+      setCurrentCard(null);
+      setSelectedToken(null);
+    }
+  },
+  [gameState, selectedToken, applyEffect, checkCondition, getTriggeredEvent]
+);
 
   // Handle token click
   const handleTokenClick = (tokenId: TokenID, mapId: MapID) => {
