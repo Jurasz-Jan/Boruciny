@@ -17,7 +17,6 @@ const tokens: Record<string, Token> = {
   "4": { id: "4", cardId: "4", mapId: "2" },
   "5": { id: "5", cardId: "5", mapId: "2" },
   "6": { id: "6", cardId: "6", mapId: "2" },
-  "7": { id: "7", cardId: "7", mapId: "2" },
   "9": { id: "9", cardId: "9", mapId: "10" },
   "18": { id: "18", cardId: "18", mapId: "2" },
   "16": { id: "16", cardId: "16", mapId: "5" },
@@ -25,7 +24,7 @@ const tokens: Record<string, Token> = {
   "22": { id: "22", cardId: "22", mapId: "6" },
   "23": { id: "23", cardId: "23", mapId: "3" },
   "24": { id: "24", cardId: "24", mapId: "3" },
-  "27": { id: "27", cardId: "27", mapId: "6" },
+  "27": { id: "27", cardId: "27", mapId: "5" },
   "87": { id: "87", cardId: "87", mapId: "7" },
   "101": { id: "101", cardId: "101", mapId: "4" },
   "102": { id: "102", cardId: "102", mapId: "4" },
@@ -41,12 +40,12 @@ const maps: Record<string, Map> = {
   "2": {
     id: "2",
     name: "Dom Ciotki",
-    tokens: ["4", "5", "6", "7",  "18"]
+    tokens: ["4", "5", "6",  "18"]
   },
   "3": {
     id: "3",
     name: "Ścieżka do Borucin",
-    tokens: ["16", "17", "22", "23", "24", "27", "87"]
+    tokens: ["16", "23", "24", "27", "87"]
   },
   "4": {
     id: "4",
@@ -66,7 +65,7 @@ const maps: Record<string, Map> = {
   "7": {
     id: "7",
     name: "Kapliczka św. Rocha",
-    tokens: ["1"]
+    tokens: ["87"]
   },
   "8": {
     id: "8",
@@ -218,17 +217,29 @@ const cards: Record<string, Card> = {
     type: "choice",
     question: "Jeden z regałów w salonie się trzęsie, jakby coś za nim było. Przesuwasz go. W ścianie odkrywasz zamknięty na klucz schowek.",
     choices: [
-      { id: "6A_choice", text: "Spróbuj otworzyć schowek", next: "6A" },
+      { id: "6A_choice", text: "Spróbuj otworzyć schowek", next: "6A_try_open" },
       { id: "6B_choice", text: "Odejdź", next: "" } // Change null to empty string or a designated 'end' card ID
     ],
     removeToken: false
   } as ChoiceCard,
 
+  "6A_try_open": {
+    id: "6A_try_open",
+    type: "text",
+    content: "Próbujesz otworzyć sejf…",
+    condition: "hasItem:klucz",
+    onConditionFail: "6A", 
+    next: "7", 
+    
+    removeToken: false
+  } as TextCard,
+
   "6A": {
     id: "6A",
     type: "text",
     content: "Drzwiczki schowka ani drgną. Gdybyś tylko  znalazł jakiś klucz…",
-    condition: "!hasItem:klucz",
+    next: "7", // Redirect to card 7 if no key
+    
     removeToken: false
   } as TextCard,
 
@@ -326,8 +337,9 @@ const cards: Record<string, Card> = {
   "16B": {
     id: "16B",
     type: "text",
-    content: "Władek Ci ufa, kierowniku, i przyjmuje twoją ofertę z radością ściskając ci dłoń na gest wdzięczności.",
+    content: "Władek Ci ufa, kierowniku, i przyjmuje twoją ofertę z radością ściskając ci dłoń na gest wdzięczności. Po uścisku w twojej dłoni zostaje spinacz.",
     condition: "hasFlag:zaufanieWladka",
+    effect: "addItem:Niebieski Spinacz",
     removeToken: true
   } as TextCard,
 
@@ -369,10 +381,10 @@ const cards: Record<string, Card> = {
     type: "choice",
     question: "Alicja siedzi za ladą, w dłoni trzyma kubek z parującą herbatą. Półki za nią uginają się od słoików z suszonymi ziołami, butelek z domowymi nalewkami i lokalnych dżemów z pokrzywą. Na ladzie stoi ceramiczny kogut.",
     choices: [
-      { id: "22A_choice", text: "Kup Leśny Dzban", next: "22A", condition: "hasItem:Spinacz" },
+      { id: "22A_choice", text: "Kup Leśny Dzban", next: "22A" },
       { id: "22B_choice", text: "Zapytaj o Leśniczego", next: "22B" }
     ],
-    removeToken: true
+    removeToken: false
   } as ChoiceCard,
 
   // IMPORTANT: 
@@ -389,7 +401,7 @@ const cards: Record<string, Card> = {
     type: "choice", // This is where the choice to buy happens
     question: "Czy chcesz kupić Leśny Dzban za trzy spinacze?",
     choices: [
-        { id: "buy_dzban", text: "Kup Leśny Dzban", next: "DZBAN_PURCHASE_CONFIRM", effect: " addItem:LeśnyDzban", condition: "hasItem:Spinacz>=3" },
+        { id: "buy_dzban", text: "Kup Leśny Dzban", next: "DZBAN_PURCHASE_CONFIRM", effect: " addItem:LeśnyDzban", condition: "hasItem:Zielony Spinacz && hasItem:Niebieski Spinacz && hasItem:Czerwony Spinacz" },
         { id: "dont_buy_dzban", text: "Nie kupuj", next: "" } // Leads nowhere or back to map
     ],
     removeToken: true
@@ -420,7 +432,7 @@ const cards: Record<string, Card> = {
     id: "23A",
     type: "text",
     content: "Podchodzisz powoli, wyciągasz dłoń. Pies wącha ją długo i poznaje, że przyjaciel Władka jest i jego przyjacielem. Pies wstaje, znika na moment w zaroślach i wraca z czymś w pysku.",
-    effect: "addItem:Spinacz",
+    effect: "addItem:Czerwony Spinacz",
     condition: "hasFlag:zaufanieWladka",
     removeToken: true
   } as TextCard,
@@ -527,22 +539,24 @@ const cards: Record<string, Card> = {
       { id: "87A_choice", text: "Pomódl się", next: "87A" },
       { id: "87B_choice", text: "Przyjrzyj się kapliczce", next: "87B" }
     ],
-    removeToken: true
+    removeToken: false
   } as ChoiceCard,
 
   "87A": {
     id: "87A",
     type: "text",
     content: "Cichy szept modlitwy unosi się w powietrze, a ty czujesz chwilową ulgę.",
-    removeToken: true
+    removeToken: false
   } as TextCard,
 
   "87B": {
     id: "87B",
     type: "text",
-    content: "Kapliczka św. Rocha, patrona pamięci. Z bliska odczytujesz ledwie widoczne słowa wyryte w kamieniu: „Pamięć trwa, gdy serce czuwa.”",
-    condition: "!hasFlag:knowWhereKey",
-    removeToken: true
+    content: "Kapliczka św. Rocha, patrona pamięci. ",
+    condition: "hasFlag:knowWhereKey",
+    onConditionFail: "87B_read",
+    next: "87B_key",
+    removeToken: false
   } as TextCard,
 
   "87B_key": {
@@ -550,10 +564,15 @@ const cards: Record<string, Card> = {
     type: "text",
     content: "Między świeżymi kwiatami zauważasz połyskujący stary, mosiężny klucz. Zabierasz klucz spod kapliczki.",
     effect: "addItem:klucz",
-    condition: "hasFlag:knowWhereKey",
     removeToken: true
   } as TextCard,
 
+  "87B_read": {
+    id: "87B_read",
+    type: "text",
+    content: "Z bliska odczytujesz ledwie widoczne słowa wyryte w kamieniu: „Pamięć trwa, gdy serce czuwa.”",
+    removeToken: false
+  } as TextCard,
   // Poranek (eventy)
   "100": {
     id: "100",
