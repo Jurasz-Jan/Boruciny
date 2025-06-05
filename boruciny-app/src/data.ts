@@ -18,12 +18,11 @@ const tokens: Record<string, Token> = {
   "5": { id: "5", cardId: "5", mapId: "2" },
   "6": { id: "6", cardId: "6", mapId: "2" },
   "7": { id: "7", cardId: "7", mapId: "2" },
-  "8": { id: "8", cardId: "8", mapId: "2" },
-  "9": { id: "9", cardId: "9", mapId: "2" },
+  "9": { id: "9", cardId: "9", mapId: "10" },
   "18": { id: "18", cardId: "18", mapId: "2" },
-  "16": { id: "16", cardId: "16", mapId: "3" },
-  "17": { id: "17", cardId: "17", mapId: "3" },
-  "22": { id: "22", cardId: "22", mapId: "3" },
+  "16": { id: "16", cardId: "16", mapId: "5" },
+  "17": { id: "17", cardId: "17", mapId: "6" },
+  "22": { id: "22", cardId: "22", mapId: "6" },
   "23": { id: "23", cardId: "23", mapId: "3" },
   "24": { id: "24", cardId: "24", mapId: "3" },
   "27": { id: "27", cardId: "27", mapId: "3" },
@@ -44,7 +43,7 @@ const maps: Record<string, Map> = {
   "2": {
     id: "2",
     name: "Dom Ciotki",
-    tokens: ["4", "5", "6", "9", "18"]
+    tokens: ["4", "5", "6", "7",  "18"]
   },
   "3": {
     id: "3",
@@ -59,32 +58,32 @@ const maps: Record<string, Map> = {
   "5": {
     id: "5",
     name: "Plac główny, kiosk Pani Bogusi",
-    tokens: []
+    tokens: ["16"]
   },
   "6": {
     id: "6",
     name: "Sklep i bar Alicji i Eryka",
-    tokens: []
+    tokens: ["17", "22"]
   },
   "7": {
     id: "7",
     name: "Kapliczka św. Rocha",
-    tokens: []
+    tokens: ["1"]
   },
   "8": {
     id: "8",
     name: "Kościół i plebania",
-    tokens: []
+    tokens: ["1"]
   },
   "9": {
     id: "9",
     name: "Ratusz",
-    tokens: []
+    tokens: ["1"]
   },
   "10": {
     id: "10",
     name: "Samochód Ciotki",
-    tokens: []
+    tokens: ["9"]
   },
 };
 
@@ -103,13 +102,13 @@ const cards: Record<string, Card> = {
   } as ChoiceCard, 
   // Type assertion for clarity,
   "1A": {
-    id: "1A",
-    type: "text",
-    condition: "hasFlag:bramaOtwarta",
-    content: "Brama otwarta",
-    effect: "addMap:2:0:0; removeToken:1;",
-    removeToken: true, // Usuwamy token, bo brama otwarta
-  } as TextCard,
+  id: "1A",
+  type: "text",
+  condition: "hasFlag:bramaOtwarta",
+  content: "Brama otwarta",
+  effect: "addMap:2:0:0; removeToken:1; addMap:3:1:0; addMap:4:1:1; addMap:5:1:2; addMap:6:2:1; addMap:7:2:2; addMap:8:0:1; addMap:9:0:2;", // <-- POPRAWIONY CIĄG EFEKTÓW
+  removeToken: true, // Usuwamy token, bo brama otwarta (ten removeToken tutaj jest już niepotrzebny, skoro masz go w 'effect', ale nie zaszkodzi)
+} as TextCard,
 
   "1A_try_open": { // Zmieniono ID, aby było jasne co robi ta karta
     id: "1A_try_open",
@@ -187,7 +186,7 @@ const cards: Record<string, Card> = {
     id: "4B",
     type: "text",
     content: "Kot siada obok i łaskawie pozwala Ci obejrzeć medalion. Wygrawerowano na nim jedno słowo “Gustaw”. W jego sierści znajdujesz zabłąkany spinacz i oswobadzasz kota z śmiecia. Kot Gustaw patrzy się na Ciebie z wyższością i powoli odchodzi.",
-    effect: "setFlag:metGustaw; addItem:Spinacz",
+    effect: "setFlag:metGustaw; addItem:Zielony Spinacz",
     removeToken: true
   } as TextCard,
 
@@ -230,7 +229,7 @@ const cards: Record<string, Card> = {
   "6A": {
     id: "6A",
     type: "text",
-    content: "Drzwiczki schowka ani drgną. Gdybyś tylko wcześniej znalazł jakiś klucz…",
+    content: "Drzwiczki schowka ani drgną. Gdybyś tylko  znalazł jakiś klucz…",
     condition: "!hasItem:klucz",
     removeToken: false
   } as TextCard,
@@ -378,12 +377,7 @@ const cards: Record<string, Card> = {
     removeToken: true
   } as ChoiceCard,
 
-  // IMPORTANT: Card 22A should either be a TextCard that *then* leads to a choice,
-  // or a ChoiceCard that combines the description and the purchase choice.
-  // Given your original text, it's more like a TextCard that gives information,
-  // then implicitly leads to another card for purchase.
-  // For simplicity and adherence to current types, I'll make 22A a TextCard.
-  // The actual purchase choice (22A2) then becomes a separate card you navigate to.
+  // IMPORTANT: 
   "22A": {
     id: "22A",
     type: "text",
@@ -461,18 +455,6 @@ const cards: Record<string, Card> = {
       next: "24B", // Prowadzi do oryginalnej karty 24B
       condition: "!hasFlag:ProboszczMartwy"
     },
-    {
-      id: "24A_choice_dead",
-      text: "Siadasz, pijesz herbatę i słuchasz (Proboszcz martwy)",
-      next: "24A_v2", // Prowadzi do oryginalnej karty 24A_v2
-      condition: "hasFlag:ProboszczMartwy"
-    },
-    {
-      id: "24B_choice_dead",
-      text: "Zagadujesz go o Boruciny (Proboszcz martwy)",
-      next: "24B_v2", // Prowadzi do oryginalnej karty 24B_v2
-      condition: "hasFlag:ProboszczMartwy"
-    }
   ],
   removeToken: true
 } as ChoiceCard,
