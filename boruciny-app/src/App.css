@@ -1,0 +1,51 @@
+/* Podstawowe style dla kontenera karty */
+.card-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Upewnij się, że jest nad innymi elementami */
+  }
+  
+  .card {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  /* Style dla pola wprowadzania hasła */
+  .code-input-container {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column; /* Aby input i button były w osobnych liniach */
+    align-items: center;
+    gap: 0.5rem; /* Odstęp między inputem a buttonem */
+  }
+  
+  .code-input-container input {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; /* Rozciągnij input */
+    max-width: 250px; /* Ogranicz szerokość */
+  }
+  
+  .code-input-container button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }

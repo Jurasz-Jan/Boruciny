@@ -50,12 +50,14 @@ const maps: Record<string, Map> = {
   "4": {
     id: "4",
     name: "Miejsce gdzie powiesili proboszcza",
+    hiddenTokens: ["101", "102"], // Hidden tokens for this map
     tokens: ["101", "102"]
   },
   "5": {
     id: "5",
     name: "Plac główny, kiosk Pani Bogusi",
-    tokens: ["16", "27"]
+    tokens: ["16", "27"],
+    hiddenTokens:["27"] 
   },
   "6": {
     id: "6",
@@ -226,7 +228,7 @@ const cards: Record<string, Card> = {
   "6A_try_open": {
     id: "6A_try_open",
     type: "text",
-    content: "Próbujesz otworzyć sejf…",
+    content: "Próbujesz otworzyć schowek…",
     condition: "hasItem:klucz",
     onConditionFail: "6A", 
     next: "7", 
@@ -238,7 +240,6 @@ const cards: Record<string, Card> = {
     id: "6A",
     type: "text",
     content: "Drzwiczki schowka ani drgną. Gdybyś tylko  znalazł jakiś klucz…",
-    next: "7", // Redirect to card 7 if no key
     
     removeToken: false
   } as TextCard,
@@ -247,8 +248,9 @@ const cards: Record<string, Card> = {
     id: "7",
     type: "text",
     content: "Za drzwiami skrytki znajduje się pudełko. Jest ono wyposażone w sześcioliterowy zamek. Otworzy się tylko, jak wpiszesz poprawne hasło. Pomyśl…",
-    condition: "hasItem:klucz",
-    effect: "setFlag:skrytkaOtwarta",
+    condition: "inputCode:PAMIĘĆ",
+    onConditionFail:"",
+    next: "8",
     removeToken: false
   } as TextCard,
 
@@ -256,8 +258,7 @@ const cards: Record<string, Card> = {
     id: "8",
     type: "text",
     content: "Słychać kliknięcie. Drzwiczki sejfu ustępują. W środku znajdujesz plik pożółkłych notatek. To notatki ciotki o Borucinach... Są pełne dziwnych obserwacji o ludziach, którzy 'wracają' i miejscach, które 'pamiętają'. Znajdujesz też… klucz do auta.",
-    condition: "hasFlag:skrytkaOtwarta && inputCode:PAMIĘĆ",
-    effect: "setFlag:zagadkaRozwiazana; addItem:notatkiCiotki; addItem:kluczykDoAuta",
+    effect: "setFlag:zagadkaRozwiazana; addItem:notatkiCiotki; addItem:kluczykDoAuta; revealToken:102;",
     removeToken: true
   } as TextCard,
 
@@ -322,7 +323,7 @@ const cards: Record<string, Card> = {
     question: "Za ladą siedzi pani Bogusia. Obok stoi Leśniczy Władek i chyba brakuje mu na papierosy.",
     choices: [
       { id: "16A_choice", text: "Zapytaj Bogusię o ciotkę", next: "16A" },
-      { id: "16B_choice", text: "Zaoferuj kupienie Władkowi szlugów", next: "16B" }
+      { id: "16B_choice", text: "Zaoferuj kupienie Władkowi szlugów", next: "16B_choice" }
     ],
     removeToken: true
   } as ChoiceCard,
@@ -331,6 +332,16 @@ const cards: Record<string, Card> = {
     id: "16A",
     type: "text",
     content: "Pani Bogusia uśmiecha się lekko. „Zawsze mnie zagadywała. Czy rano, czy wieczorem — zawsze to jej 'dzień dobry, pani Bogusiu' i potem sto tematów. A niby tylko po gazetę przyszła, z tym swoim koszykiem wypchanym ziołami. Dobra kobieta była. Jak się uśmiechnęła, to człowiekowi od razu lżej.”",
+    removeToken: true
+  } as TextCard,
+
+  "16B_choice": {
+    id: "16B",
+    type: "text",
+    content: "Oferujesz Władkowi kupno paczki szlugów.",
+    condition: "hasFlag:zaufanieWladka",
+    onConditionFail: "16C",
+    next: "16B",
     removeToken: true
   } as TextCard,
 
@@ -447,71 +458,71 @@ const cards: Record<string, Card> = {
 
   // IMPORTANT: You have two versions of Card "24" with different content and choices.
   // This implies conditional display. I'll use your "_v2" naming for the second version.
-  // W gameData.ts
-"24": {
-  id: "24",
-  type: "choice",
-  question: "Proboszcz zaprasza cię do środka...", // Ogólne pytanie
-  choices: [
-    {
-      id: "24A_choice_alive",
-      text: "Wypij herbatę i słuchaj (Proboszcz żywy)",
-      next: "24A", // Prowadzi do oryginalnej karty 24A
-      condition: "!hasFlag:ProboszczMartwy"
-    },
-    {
-      id: "24B_choice_alive",
-      text: "Spytaj o Boruciny (Proboszcz żywy)",
-      next: "24B", // Prowadzi do oryginalnej karty 24B
-      condition: "!hasFlag:ProboszczMartwy"
-    },
-  ],
-  removeToken: true
-} as ChoiceCard,
+   
+  
 
-// Usuń osobną definicję "24_v2", "24A_v2", "24B_v2" z gameData.cards
-// Upewnij się, że karty 24A, 24B, 24A_v2, 24B_v2 nadal istnieją jako karty tekstowe.
+  "24": {
+    id: "24",
+    type: "choice",
+    question: "Proboszcz zaprasza cię do środka. Wnętrze jest proste — trochę książek, krzyż nad drzwiami, zapach parzonej herbaty. Siadacie przy stole. Cicho za oknem, tylko słychać, jak wiatr szarpie drzwiami stodoły.",
+    choices: [
+      { id: "24_choice_A", text: "Siadasz, pijesz herbatę i słuchasz", next: "24A" },
+      { id: "24_choice_B", text: "Zagadujesz go o Boruciny", next: "24B" }
+    ],
+    removeToken: false 
+  } as ChoiceCard,
+
+  "24A": {
+    id: "24A",
+    type: "choice", 
+    question: "„Twoja ciotka… często tu wpadała. Pogadać, zostawić jakiś słoik z ziołami. Miała swoje teorie, ale kto ich nie ma? Mówiła, że pamięć to najważniejsze, że jak ludzie zapomną, to wszystko zniknie. Że ta wieś… coś pamięta. Że to w ludziach siedzi, i w domu, i w ogrodzie. Dziwnie to brzmiało, ale... była w tym jakaś prawda.”",
+    choices: [
+      { id: "24A_choice_A", text: "Zapytaj, co konkretnie miała na myśli", next: "25A" },
+      { id: "24A_choice_B", text: "Powiedz, że też coś czujesz", next: "25B" }
+    ],
+    removeToken: false 
+  } as ChoiceCard,
 
   "25A": {
     id: "25A",
     type: "text",
     content: "„Nie wiem. Może że ludzie tu żyją bardziej wspomnieniami niż tym, co jest. Że jak coś się raz wydarzyło, to już zostaje. A niektórzy... jakby nie potrafili już ruszyć dalej.”",
-    removeToken: true
+    removeToken: true 
   } as TextCard,
 
   "25B": {
     id: "25B",
     type: "text",
     content: "„To nie jesteś pierwszy. Tu wiele osób ma takie wrażenie. Że coś tu nie gra. Ale nie w taki zły sposób. Tylko jakby… coś się zawiesiło.”",
-    removeToken: true
+    removeToken: true 
   } as TextCard,
 
-  "24B_v2": {
-    id: "24B_v2",
-    type: "choice",
+  "24B": {
+    id: "24B",
+    type: "choice", 
     question: "Proboszcz sięga po czajnik i dolewa ci herbaty. „Boruciny… Czasami myślę, że to nie jest zwykła wieś. Wszystko się tu kręci wokół starych spraw. Ludzie pamiętają więcej, niż powinni. A czasem nie pamiętają wcale. Może to kwestia wieku? Kto wie”",
     choices: [
-      { id: "26A_choice", text: "A księdza to też dotknęło?", next: "26A" },
-      { id: "26B_choice", text: "Można coś z tym zrobić?", next: "26B" }
+      { id: "24B_choice_A", text: "Pytasz, czy on sam coś takiego przeżył", next: "26A" },
+      { id: "24B_choice_B", text: "Pytasz, czy da się temu jakoś zaradzić", next: "26B" }
     ],
-    removeToken: true
+    removeToken: false 
   } as ChoiceCard,
 
   "26A": {
     id: "26A",
     type: "text",
     content: "„Nie powiem, że nie. Czasem budzę się i nie wiem, czy coś się wydarzyło, czy nie. A twarze… niektóre jakby znajome, choć nie powinny być.”",
-    removeToken: true
+    
+    removeToken: true 
   } as TextCard,
 
   "26B": {
     id: "26B",
     type: "text",
     content: "„Nie wiem. Nie jestem od tego. Ale może to nie o rozwiązanie chodzi. Może wystarczy tylko... pamiętać. Albo zrozumieć, co się tak naprawdę pamięta.”",
-    removeToken: true
+    
+    removeToken: true 
   } as TextCard,
-
-  //Dopracować proboszcza
   "27": {
     id: "27",
     type: "choice",
@@ -535,6 +546,7 @@ const cards: Record<string, Card> = {
     id: "87",
     type: "choice",
     question: "Kapliczka Świętego Rocha, patrona pamięci. Skromna ale zadbana, pod nią stoją świeże kwiaty. Na płycie w kapliczce jest coś napisane.",
+    effect:"setFlag:playerIsReady",
     choices: [
       { id: "87A_choice", text: "Pomódl się", next: "87A" },
       { id: "87B_choice", text: "Przyjrzyj się kapliczce", next: "87B" }
@@ -578,8 +590,16 @@ const cards: Record<string, Card> = {
     id: "100",
     type: "text",
     condition: "hasFlag:playerIsReady",
+    content: "Zapadła noc.",
+    effect: "revealToken:101; revealToken:27; removeToken:24;",
+    next:"105",
+    removeToken: true
+  } as TextCard,
+
+  "105": {
+    id: "100",
+    type: "text",
     content: "W nocy słyszysz nieopodal jakiś dziwny dźwięk. Rano powinieneś zbadać co to.",
-    effect: "addToken:101",
     removeToken: true
   } as TextCard,
 
@@ -605,7 +625,7 @@ const cards: Record<string, Card> = {
 const initialGameState: GameState = {
   activeMaps: [{ id: "1", x: 0, y: 0 }],
   removedTokens: [],
-  discoveredTokens: ["1", "2", "3"],
+  discoveredTokens: ["1", "2", ],
   flags: [],
   inventory: [],
   triggeredEvents: []

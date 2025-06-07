@@ -46,6 +46,7 @@ export interface Map {
   id: MapID;
   name: string;
   tokens: TokenID[];
+  hiddenTokens?: TokenID[]; 
 }
 
 export interface ActiveMap {
