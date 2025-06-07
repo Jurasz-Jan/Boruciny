@@ -45,7 +45,7 @@ const maps: Record<string, Map> = {
   "3": {
     id: "3",
     name: "Ścieżka do Borucin",
-    tokens: ["16", "23", "24", "27", "87"]
+    tokens: ["16", "23", "24"]
   },
   "4": {
     id: "4",
