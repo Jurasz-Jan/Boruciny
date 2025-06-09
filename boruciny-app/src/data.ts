@@ -40,16 +40,16 @@ const maps: Record<string, Map> = {
   "2": {
     id: "2",
     name: "Dom Ciotki",
-    tokens: ["4", "5", "6",  "18"]
+    tokens: ["4", "5", "6", "9", "18"]
   },
   "3": {
     id: "3",
     name: "Ścieżka do Borucin",
-    tokens: [ "23", "24"]
+    tokens: [ "23"]
   },
   "4": {
     id: "4",
-    name: "Miejsce gdzie powiesili proboszcza",
+    name: "Lasek koło plebanii",
     hiddenTokens: ["101", "102"], // Hidden tokens for this map
     tokens: ["101", "102"]
   },
@@ -72,12 +72,7 @@ const maps: Record<string, Map> = {
   "8": {
     id: "8",
     name: "Kościół i plebania",
-    tokens: ["1"]
-  },
-  "9": {
-    id: "9",
-    name: "Ratusz",
-    tokens: ["1"]
+    tokens: [ "24"]
   },
   "10": {
     id: "10",
@@ -101,7 +96,7 @@ const cards: Record<string, Card> = {
   } as ChoiceCard, 
   // Type assertion for clarity,
   "1A": {
-  id: "1A",
+  id: "3",
   type: "text",
   condition: "hasFlag:bramaOtwarta",
   content: "Brama otwarta",
@@ -162,6 +157,8 @@ const cards: Record<string, Card> = {
     removeToken: false,
   } as TextCard,
 
+
+  // 3 brama sie otwiera
   // W Domu Ciotki
   "4": {
     id: "4",
@@ -403,12 +400,12 @@ const cards: Record<string, Card> = {
     id: "22A",
     type: "text",
     content: "Leśny Dzban to lokalny trunek, butelkowany przez Alicję i Eryka. Pachnie ziołami i czymś... nieznanym. Plotki mówią, że ma dziwne działanie – jednych 'uspokaja', innych 'ożywia'. Eryk uśmiecha się pod nosem, gdy pytasz o Leśny Dzban. 'To nie jest coś, co po prostu stoi na półce. To... specjalny towar. Potrzebujemy... nietypowej zapłaty. Wystarczą nam trzy spinacze. Nie pytaj, po co nam spinacze. Biznes to biznes, kierowniku.'",
-    next: "22A2", // Automatically transition to the next card to offer purchase
+    next: "22C", // Automatically transition to the next card to offer purchase
     removeToken: false // Keep token active until purchase is made
   } as TextCard,
 
-  "22A2": {
-    id: "22A2",
+  "22C": {
+    id: "22C",
     type: "choice", // This is where the choice to buy happens
     question: "Czy chcesz kupić Leśny Dzban za trzy spinacze?",
     choices: [
@@ -456,6 +453,13 @@ const cards: Record<string, Card> = {
     removeToken: true
   } as TextCard,
 
+
+  "23C": {
+    id: "22B",
+    type: "text",
+    content: "Alicja wzdycha i zerka przez okno. „Władek? Był tu rano. Wziął paczkę ziół dla psa – ten jego stary kundel podobno znowu coś połknął. Władek jest taki trochę… inny. On tak chodzi po wsi, niby że patroluje, ale bardziej wygląda, jakby czegoś szukał. Nic od niego nie dowiesz się więcej w tym zakresie, przynajmniej mi się nie udało”",
+    removeToken: true
+  } as TextCard,
   // IMPORTANT: You have two versions of Card "24" with different content and choices.
   // This implies conditional display. I'll use your "_v2" naming for the second version.
    
@@ -571,8 +575,8 @@ const cards: Record<string, Card> = {
     removeToken: false
   } as TextCard,
 
-  "87B_key": {
-    id: "87B_key",
+  "87C": {
+    id: "87C",
     type: "text",
     content: "Między świeżymi kwiatami zauważasz połyskujący stary, mosiężny klucz. Zabierasz klucz spod kapliczki.",
     effect: "addItem:klucz",
@@ -590,19 +594,11 @@ const cards: Record<string, Card> = {
     id: "100",
     type: "text",
     condition: "hasFlag:playerIsReady",
-    content: "Zapadła noc.",
+    content: "Zapadła noc. W nocy słyszysz nieopodal jakiś dziwny dźwięk. Rano powinieneś zbadać co to.",
     effect: "revealToken:101; revealToken:27; removeToken:24;",
     next:"105",
     removeToken: true
   } as TextCard,
-
-  "105": {
-    id: "100",
-    type: "text",
-    content: "W nocy słyszysz nieopodal jakiś dziwny dźwięk. Rano powinieneś zbadać co to.",
-    removeToken: true
-  } as TextCard,
-
   "101": {
     id: "101",
     type: "text",
