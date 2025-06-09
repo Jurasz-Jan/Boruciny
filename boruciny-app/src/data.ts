@@ -430,18 +430,19 @@ const cards: Record<string, Card> = {
     type: "choice",
     question: "Przy ścieżce, pod rozłożystą brzozą, siedzi bardzo stary kundel. Ma pysk naznaczony szarymi plamami czasu. Patrzy na ciebie tymi mądrymi, starymi oczami, zupełnie nieruchomo, jakby znał cię od zawsze i czekał na jakiś znajomy znak.",
     choices: [
-      { id: "23A_choice", text: "Spróbuj podejść do psa", next: "23A" },
+      { id: "23A_choice", text: "Spróbuj podejść do psa", next: "23_does_have_weed" },
       { id: "23B_choice", text: "Zawołaj go", next: "23B" }
     ],
     removeToken: true
   } as ChoiceCard,
 
-  "23A": {
-    id: "23A",
+  "23_does_have_weed": {
+    id: "23_does_have_weed",
     type: "text",
-    content: "Podchodzisz powoli, wyciągasz dłoń. Pies wącha ją długo i poznaje, że przyjaciel Władka jest i jego przyjacielem. Pies wstaje, znika na moment w zaroślach i wraca z czymś w pysku.",
-    effect: "addItem:Czerwony Spinacz",
-    condition: "hasFlag:zaufanieWladka",
+    content: "Podchodzisz powoli",
+    condition: "hasItem:ziołaNaPamięć",
+    onConditionFail: "23C",
+    next: "23A",
     removeToken: true
   } as TextCard,
 
@@ -449,7 +450,6 @@ const cards: Record<string, Card> = {
     id: "23B",
     type: "text",
     content: "Pies ewidentnie ma więcej rozsądku od Ciebie w tej sytuacji. Po chwili wstaje, wchodzi w las i znika, jakby go wcale tu nie było. Może trzeba było podejść inaczej.",
-    condition: "!hasFlag:zaufanieWladka",
     removeToken: true
   } as TextCard,
 
@@ -463,7 +463,14 @@ const cards: Record<string, Card> = {
   // IMPORTANT: You have two versions of Card "24" with different content and choices.
   // This implies conditional display. I'll use your "_v2" naming for the second version.
    
-  
+  "23A": {
+    id: "23A",
+    type: "text",
+    content: "Podchodzisz powoli, wyciągasz dłoń. Pies wącha ją długo i poznaje, że przyjaciel Władka jest i jego przyjacielem. Pies wstaje, znika na moment w zaroślach i wraca z czymś w pysku.",
+    effect: "addItem:Czerwony Spinacz",
+    condition: "hasFlag:zaufanieWladka",
+    removeToken: true
+  } as TextCard,
 
   "24": {
     id: "24",
