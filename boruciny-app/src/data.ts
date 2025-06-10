@@ -189,7 +189,7 @@ const cards: Record<string, Card> = {
   "5": {
     id: "5",
     type: "choice",
-    question: "Dobierz kartę 5.",
+    question: "Blat komody zapełniony jest różnorakimi przedmiotami. Twoją uwagę przyciągają jednak sterta starych gazet i zdjęcia rodzinne.",
     choices: [
       { id: "5A_choice", text: "Przejrzyj gazety", next: "5A" },
       { id: "5B_choice", text: "Spójrz na zdjęcia", next: "5B" }
