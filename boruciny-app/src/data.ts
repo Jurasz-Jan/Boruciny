@@ -641,7 +641,7 @@ const cards: Record<string, Card> = {
 
 // Your initial game state
 const initialGameState: GameState = {
-  activeMaps: [{ id: "1", x: 1, y: 1 }],
+  activeMaps: [{ id: "1", x: 0, y: 1 }],
   removedTokens: [],
   discoveredTokens: ["1", "2", ],
   flags: [],
