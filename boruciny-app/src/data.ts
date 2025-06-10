@@ -100,7 +100,7 @@ const cards: Record<string, Card> = {
   type: "text",
   condition: "hasFlag:bramaOtwarta",
   content: "Dobierz kartę 3",
-  effect: "addMap:2:0:0; removeToken:1; addMap:3:1:0; addMap:4:1:1; addMap:5:1:2; addMap:6:2:1; addMap:7:2:2; addMap:8:0:1; addMap:9:0:2;", // <-- POPRAWIONY CIĄG EFEKTÓW
+  effect: "addMap:2:0:0; removeToken:1; addMap:3:1:1; addMap:4:2:2; addMap:5:0:3; addMap:6:0:2; addMap:7:1:3; addMap:8:1:2; addMap:9:0:2;", // <-- POPRAWIONY CIĄG EFEKTÓW
   removeToken: true, // Usuwamy token, bo brama otwarta (ten removeToken tutaj jest już niepotrzebny, skoro masz go w 'effect', ale nie zaszkodzi)
 } as TextCard,
 
