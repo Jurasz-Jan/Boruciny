@@ -182,7 +182,7 @@ const cards: Record<string, Card> = {
     id: "4B",
     type: "text",
     content: "Dobierz kartę 4B",
-    effect: "setFlag:metGustaw; addItem:Zielony Spinacz",
+    effect: "setFlag:metGustaw; addItem:Pierwszy Dukat",
     removeToken: true
   } as TextCard,
 
@@ -264,12 +264,22 @@ const cards: Record<string, Card> = {
     type: "choice",
     question: "Dobierz kartę 9.",
     choices: [
-      { id: "9A_choice", text: "Spróbuj uruchomić auto", next: "9A" },
+      { id: "9A_choice", text: "Spróbuj uruchomić auto", next: "9_choice" },
       { id: "9B_choice", text: "Odejdź", next: "" } // Change null to empty string or a designated 'end' card ID
     ],
     removeToken: false
   } as ChoiceCard,
 
+  "9_choice": {
+    id: "9_choice",
+    type: "text",
+    content: "Wchodzisz do auta",
+    condition: "hasItem:kluczykDoAuta",
+    onConditionFail: "9A",
+    next: "9B",
+    removeToken: true
+  } as TextCard,
+  
   "9A": {
     id: "9A",
     type: "text",
@@ -277,9 +287,9 @@ const cards: Record<string, Card> = {
     condition: "!hasItem:kluczykDoAuta",
     removeToken: false
   } as TextCard,
-
-  "9A2": {
-    id: "9A2",
+  
+  "9B": {
+    id: "9B",
     type: "text",
     content: "Dobierz kartę 9B",
     condition: "hasItem:kluczykDoAuta",
@@ -347,7 +357,7 @@ const cards: Record<string, Card> = {
     type: "text",
     content: "Dobierz kartę 16B",
     condition: "hasFlag:zaufanieWladka",
-    effect: "addItem:Niebieski Spinacz",
+    effect: "addItem:Trzeci Dukat",
     removeToken: true
   } as TextCard,
 
@@ -409,7 +419,7 @@ const cards: Record<string, Card> = {
     type: "choice", // This is where the choice to buy happens
     question: "Dobierz kartę 22C",
     choices: [
-        { id: "buy_dzban", text: "Kup Leśny Dzban", next: "DZBAN_PURCHASE_CONFIRM", effect: " addItem:LeśnyDzban", condition: "hasItem:Zielony Spinacz && hasItem:Niebieski Spinacz && hasItem:Czerwony Spinacz" },
+        { id: "buy_dzban", text: "Kup Leśny Dzban", next: "DZBAN_PURCHASE_CONFIRM", effect: " addItem:LeśnyDzban", condition: "hasItem:Pierwszy Dukat && hasItem:Drugi Dukat && hasItem:Trzeci Dukat" },
         { id: "dont_buy_dzban", text: "Nie kupuj", next: "" } // Leads nowhere or back to map
     ],
     removeToken: true
@@ -458,7 +468,7 @@ const cards: Record<string, Card> = {
     id: "22B",
     type: "text",
     content: "Dobierz kartę 23C, kierowniku.",
-    effect: "addItem:Czerwony Spinacz",
+    effect: "addItem:Drugi Dukat",
     removeToken: true
   } as TextCard,
   // IMPORTANT: You have two versions of Card "24" with different content and choices.
@@ -468,7 +478,6 @@ const cards: Record<string, Card> = {
     id: "23A",
     type: "text",
     content: "Dobierz kartę 23A",
-    effect: "addItem:Czerwony Spinacz",
     removeToken: true
   } as TextCard,
 
