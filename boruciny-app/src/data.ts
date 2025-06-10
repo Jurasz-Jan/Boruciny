@@ -17,13 +17,13 @@ const tokens: Record<string, Token> = {
   "4": { id: "4", cardId: "4", mapId: "2" },
   "5": { id: "5", cardId: "5", mapId: "2" },
   "6": { id: "6", cardId: "6", mapId: "2" },
-  "9": { id: "9", cardId: "9", mapId: "10" },
+  "9": { id: "9", cardId: "9", mapId: "2" },
   "18": { id: "18", cardId: "18", mapId: "2" },
   "16": { id: "16", cardId: "16", mapId: "5" },
   "17": { id: "17", cardId: "17", mapId: "6" },
   "22": { id: "22", cardId: "22", mapId: "6" },
   "23": { id: "23", cardId: "23", mapId: "3" },
-  "24": { id: "24", cardId: "24", mapId: "3" },
+  "24": { id: "24", cardId: "24", mapId: "8" },
   "27": { id: "27", cardId: "27", mapId: "5" },
   "87": { id: "87", cardId: "87", mapId: "7" },
   "101": { id: "101", cardId: "101", mapId: "4" },
@@ -254,7 +254,7 @@ const cards: Record<string, Card> = {
   "8": {
     id: "8",
     type: "text",
-    content: "Dobierz kartę 8",
+    content: "Dobierz kartę 8. Przeczytaj załącznik nr 1.",
     effect: "setFlag:zagadkaRozwiazana; addItem:notatkiCiotki; addItem:kluczykDoAuta; revealToken:102;",
     removeToken: true
   } as TextCard,
@@ -498,6 +498,7 @@ const cards: Record<string, Card> = {
     id: "25A",
     type: "text",
     content: "Dobierz kartę 25A",
+    effect: "removeToken:24",
     removeToken: true 
   } as TextCard,
 
@@ -505,6 +506,7 @@ const cards: Record<string, Card> = {
     id: "25B",
     type: "text",
     content: " Dobierz kartę 25B",
+    effect: "removeToken:24",
     removeToken: true 
   } as TextCard,
 
@@ -523,6 +525,7 @@ const cards: Record<string, Card> = {
     id: "26A",
     type: "text",
     content: "Dobierz kartę 26A",
+    effect: "removeToken:24",
     
     removeToken: true 
   } as TextCard,
@@ -531,6 +534,7 @@ const cards: Record<string, Card> = {
     id: "26B",
     type: "text",
     content: "Dobierz kartę 26B",
+    effect: "removeToken:24",
     
     removeToken: true 
   } as TextCard,
@@ -578,9 +582,11 @@ const cards: Record<string, Card> = {
     content: "Kapliczka św. Rocha, patrona pamięci. ",
     condition: "hasFlag:knowWhereKey",
     onConditionFail: "87B_read",
-    next: "87B_key",
+    effect: "",
+    next: "87C",
     removeToken: false
   } as TextCard,
+
 
   "87C": {
     id: "87C",
@@ -626,7 +632,7 @@ const cards: Record<string, Card> = {
 
 // Your initial game state
 const initialGameState: GameState = {
-  activeMaps: [{ id: "1", x: 0, y: 0 }],
+  activeMaps: [{ id: "1", x: 1, y: 1 }],
   removedTokens: [],
   discoveredTokens: ["1", "2", ],
   flags: [],
